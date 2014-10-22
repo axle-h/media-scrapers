@@ -1,4 +1,4 @@
 yts
 ===
 
-Parser for http://www.yify-torrent.org/
+Parser for yts.re
