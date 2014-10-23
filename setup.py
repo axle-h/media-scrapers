@@ -10,7 +10,7 @@ setup(
     license='',
     author='Alex Haslehurst',
     author_email='alex.haslehurst@gmail.com',
-    description='Parser for http://www.yify-torrent.org/.',
+    description='Scraper for yts.re',
     requires=['humanfriendly', 'beautifulsoup4', 'html5lib'],
     install_requires=['humanfriendly', 'beautifulsoup4', 'html5lib']
 )

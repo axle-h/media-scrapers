@@ -1,4 +1,4 @@
 yts
 ===
 
-Parser for yts.re
+Scraper for yts.re
