@@ -1,9 +1,9 @@
-__author__ = 'Alex'
+__author__ = 'Alex Haslehurst'
 
 from distutils.core import setup
 
 setup(
-    name='yts',
+    name='media-scrapers',
     version='0.1',
     packages=['axh', 'axh.yts'],
     url='axh.pwnz.org',

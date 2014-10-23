@@ -1,4 +1,7 @@
-yts
-===
+media-scrapers
+==============
 
-Scraper for yts.re
+Collection of media scrapers.
+Currently:
+
+* yts.re
