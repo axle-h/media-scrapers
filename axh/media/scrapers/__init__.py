@@ -1,5 +1,6 @@
-from axh.media.models import MediaType, MovieQuality
-from axh.media.yts.yts_scraper import YtsScraper
+from axh.media.scrapers.models import MediaType, MovieQuality
+from axh.media.scrapers.yts.yts_scraper import YtsScraper
+
 
 __author__ = 'Alex Haslehurst'
 
