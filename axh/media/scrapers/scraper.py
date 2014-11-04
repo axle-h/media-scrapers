@@ -1,4 +1,7 @@
 from abc import ABCMeta, abstractmethod
+import gzip
+import urllib
+import time
 
 __author__ = 'Alex Haslehurst'
 
@@ -16,3 +19,18 @@ class ScraperBase(metaclass=ABCMeta):
 
     def get_iterator(self):
         return self.__iter__()
+
+    @staticmethod
+    def _try_open_stream(request):
+        while True:
+            try:
+                response = urllib.request.urlopen(request)
+                buf = response.read()
+                if response.info().get('Content-Encoding') == 'gzip':
+                    return gzip.decompress(buf).decode()
+                else:
+                    return buf.decode()
+            except ConnectionResetError:
+                print("Connection reset")
+                time.sleep(10)
+                print("Retrying")

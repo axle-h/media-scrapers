@@ -6,7 +6,7 @@ import time
 import humanfriendly
 from bs4 import BeautifulSoup
 from axh.media.scrapers.scraper import ScraperBase
-from axh.media.scrapers.models import Movie, MediaSource, MovieQuality
+from axh.media.scrapers.models import Movie, MediaSource, MovieQuality, MediaType
 
 from axh.media.scrapers.yts import YtsRequest
 
@@ -43,10 +43,10 @@ class YtsScraper(ScraperBase):
     MovieDescriptionClass = "movie-descr"
     MovieDescriptionInnerClass = "description"
 
-    def __init__(self, media_type, quality, reference_number):
-        super().__init__(media_type, quality, reference_number)
+    def __init__(self, quality, reference_number):
+        super().__init__(MediaType.Movie, quality, reference_number)
         request = _YtsMovieListRequest(quality, reference_number)
-        response = YtsScraper._try_open_stream(request)
+        response = ScraperBase._try_open_stream(request)
         soup = BeautifulSoup(response, self.HtmlLibrary)
 
         # Make sure that this page isn't > last page.
@@ -66,27 +66,12 @@ class YtsScraper(ScraperBase):
         return iter(self.movies)
 
     @staticmethod
-    def _try_open_stream(request):
-        while True:
-            try:
-                response = urllib.request.urlopen(request)
-                buf = response.read()
-                if response.info().get('Content-Encoding') == 'gzip':
-                    return gzip.decompress(buf)
-                else:
-                    return buf
-            except ConnectionResetError:
-                print("Connection reset")
-                time.sleep(10)
-                print("Retrying")
-
-    @staticmethod
     def _scrape_movie(url):
         request = YtsRequest(url)
-        response = YtsScraper._try_open_stream(request)
+        response = ScraperBase._try_open_stream(request)
         soup = BeautifulSoup(response, YtsScraper.HtmlLibrary)
         movie_wrapper = soup.find("div", {'id': YtsScraper.MovieWrapperClass})
-        image = movie_wrapper.find("div", YtsScraper.MovieImageClass).find("img")["src"]
+        image_url = movie_wrapper.find("div", YtsScraper.MovieImageClass).find("img")["src"]
 
         movie_info_section = movie_wrapper.find("div", YtsScraper.MovieInfoClass)
         full_title = movie_info_section.find("h1").getText()
@@ -115,18 +100,14 @@ class YtsScraper(ScraperBase):
 
         page_links = [urllib.parse.urlparse(anchor['href']) for anchor in movie_info_section.findAll('a')]
 
-        imdb = trailer = torrent = magnet = ""
+        imdb = youtube_id = magnet = ""
         for page_link in page_links:
             if page_link.netloc == "www.imdb.com":
                 imdb = re.search('.+?/(.+)/$', page_link.path).group(1)
             elif page_link.netloc == "www.youtube.com":
-                trailer = page_link.path
-            elif page_link.netloc == YtsRequest.YtsNetloc:
-                torrent = page_link.path
+                youtube_id = page_link.params['v']
             elif page_link.scheme == "magnet":
                 magnet = page_link.geturl()
 
-        link = urllib.parse.urlparse(url).path
-
-        return Movie(MediaSource.Yts, title, year, link, torrent, magnet, imdb, rating, genres, quality, size, runtime,
-                     synopsis, image, trailer)
+        return Movie(MediaSource.Yts, title, year, url, magnet, imdb, rating, genres, quality, size, runtime,
+                     synopsis, image_url, youtube_id)

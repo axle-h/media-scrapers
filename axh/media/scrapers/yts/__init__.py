@@ -18,10 +18,16 @@ class YtsRequest(urllib.request.Request):
     YtsHeaders = {'Accept': Accept, 'Accept-Encoding': AcceptEncoding, 'Accept-Language': AcceptLanguage,
                   'Cache-Control': CacheControl, 'Connection': Connection, 'Pragma': Pragma, 'User-Agent': UserAgent}
 
-    def __init__(self, url):
-        super().__init__(YtsRequest._get_url(url), headers=self.YtsHeaders)
+    def __init__(self, url_path, params=None):
+        url = YtsRequest._get_url(url_path, params)
+        super().__init__(url, headers=self.YtsHeaders)
 
     @staticmethod
-    def _get_url(raw_url):
-        parsed = urllib.parse.urlparse(raw_url)
-        return "{0}://{1}{2}".format(YtsRequest.YtsScheme, YtsRequest.YtsNetloc, parsed.path)
+    def _get_url(url_path, params):
+        parsed = urllib.parse.urlparse(url_path)
+
+        if params is None:
+            return "{0}://{1}{2}".format(YtsRequest.YtsScheme, YtsRequest.YtsNetloc, parsed.path)
+        else:
+            return "{0}://{1}{2}?{3}".format(YtsRequest.YtsScheme, YtsRequest.YtsNetloc, parsed.path,
+                                             urllib.parse.urlencode(params))

@@ -1,12 +1,13 @@
 from axh.media.scrapers.models import MediaType, MovieQuality
 from axh.media.scrapers.yts.yts_scraper import YtsScraper
+from axh.media.scrapers.yts.yts_api import YtsApiClient
 
 
 __author__ = 'Alex Haslehurst'
 
 
-def all_scrapers(media_type, quality, reference_number):
-    return [YtsScraper(media_type, quality, reference_number)]
+def all_movie_scrapers(quality, reference_number):
+    return [YtsApiClient(quality, reference_number)]
 
 
 def scrape_movies(reference_number):
@@ -15,6 +16,6 @@ def scrape_movies(reference_number):
     """
 
     return [film for scrapers in
-            [all_scrapers(MediaType.Movie, quality, reference_number) for quality in MovieQuality]
+            [all_movie_scrapers(quality, reference_number) for quality in MovieQuality]
             for scraper in scrapers
             for film in scraper]
